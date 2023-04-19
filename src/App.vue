@@ -56,6 +56,7 @@ export default {
   async mounted() {
     // 由於只做單一頁面，故沒有額外封裝fetch。
     /* 將data1、data2、data3取出來後讓他附值在tableData中 */
+    console.time();
     try {
       const dataFiles = ["data1.json", "data2.json", "data3.json"];
       const responses = await Promise.all(
@@ -67,22 +68,30 @@ export default {
 
       this.tableData = dataArray[0];
 
+      // 建立一個包含 tableData 每一個元素的 key 的陣列
+      const tableDataKeys = this.tableData.map((row) => row.key);
+
       for (const row2 of dataArray[1]) {
-        const row1 = this.tableData.find((row1) => row1.key === row2.key);
-        if (row1) {
-          row1.cell8 = row2.cell8;
+        // 搜尋 key 值是否存在於 tableDataKeys 陣列中
+        const index = tableDataKeys.indexOf(row2.key);
+        if (index !== -1) {
+          // 若存在，直接使用 tableData[index] 更新資料
+          this.tableData[index].cell8 = row2.cell8;
         }
       }
 
+      const tableDataCell4 = this.tableData.map((row) => row.cell4);
       for (const row3 of Object.values(dataArray[2])) {
-        const row1 = this.tableData.find((row1) => row1.cell4 === row3.cell4);
-        if (row1) {
-          row1.cell9 = row3.cell9;
+        const index = tableDataCell4.indexOf(row3.cell4);
+        if (index !== -1) {
+          this.tableData[index].cell9 = row3.cell9;
         }
       }
     } catch (error) {
       console.error("取得檔案失敗:", error);
     }
+
+    console.timeEnd();
   },
   methods: {
     /* selectRow為選定點擊的那一頁 */
